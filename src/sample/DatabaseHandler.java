@@ -3,6 +3,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.ResultSet;
 
 public class DatabaseHandler extends Configs {
     Connection dbConnection;
@@ -16,21 +17,37 @@ public class DatabaseHandler extends Configs {
                 return dbConnection;
     }
     //Write||Read
-    public void signUpUser(String firstname, String lastname, String username, String password, String gender){
+    public void signUpUser(User user){
         String insert = "INSERT INTO " + Const.USER_TABLE + "(" + Const.USER_FIRSTNAME + "," + Const.USER_LASTNAME+ "," + Const.USER_NAME+","+Const.USER_PASSWORD + ","+Const.USER_GENDER+")"
                 + "VALUES(?,?,?,?,?)";
         try {
             PreparedStatement prSt = getDbConnection().prepareStatement(insert );
-            prSt.setString(1,firstname);
-            prSt.setString(2,lastname);
-            prSt.setString(3,username);
-            prSt.setString(4,password);
-            prSt.setString(5,gender);
+            prSt.setString(1,user.getFirstName());
+            prSt.setString(2,user.getLastName());
+            prSt.setString(3,user.getUserName());
+            prSt.setString(4,user.getPassword());
+            prSt.setString(5,user.getGender());
             prSt.executeUpdate();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
+    }
+    public ResultSet getUser(User user)
+    {
+        ResultSet resSet=null;
+        String select = "SELECT*FROM " + Const.USER_TABLE + " WHERE " +Const.USER_NAME + "=? AND " + Const.USER_PASSWORD + "=?";
+        try {
+            PreparedStatement prSt = getDbConnection().prepareStatement(select );
+            prSt.setString(1,user.getUserName());
+            prSt.setString(2,user.getPassword());
+            resSet = prSt.executeQuery();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return resSet;
     }
 }
